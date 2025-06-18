@@ -3,12 +3,18 @@ import { SERVER_ROUTES } from "./appConfig";
 import AlunoController from "./controller/AlunoController";
 import LivroController from "./controller/LivroController";
 import EmprestimoController from "./controller/EmprestimoController";
+import UsuarioController from "./controller/UsuarioController";
+import { upload , uploadCapa } from "./config/multerConfig";
+import swaggerUi from "swagger-ui-express"; // Importa a API do swagger
+import swaggerOutput from "../docs/swagger_doc.json"; // Importa o arquivo de saída do swagger
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
     res.json({ mensagem: "Rota padrão" })
 });
+
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput)); // Rota para acessar a documentação
 
 // CRUD Aluno
 router.get(SERVER_ROUTES.LISTAR_ALUNOS, AlunoController.todos);
@@ -18,7 +24,7 @@ router.put(SERVER_ROUTES.ATUALIZAR_ALUNO, AlunoController.atualizar);
 
 //CRUD Livro
 router.get(SERVER_ROUTES.LISTAR_LIVROS, LivroController.todos);
-router.post(SERVER_ROUTES.NOVO_LIVRO, LivroController.cadastrar);
+router.post(SERVER_ROUTES.NOVO_LIVRO, uploadCapa.single('capa'), LivroController.cadastrar);
 router.put(SERVER_ROUTES.REMOVER_LIVRO, LivroController.remover);
 router.put(SERVER_ROUTES.ATUALIZAR_LIVRO, LivroController.atualizar);
 
@@ -27,5 +33,8 @@ router.get(SERVER_ROUTES.LISTAR_EMPRESTIMOS, EmprestimoController.todos);
 router.post(SERVER_ROUTES.NOVO_EMPRESTIMO, EmprestimoController.cadastrar);
 router.put(SERVER_ROUTES.ATUALIZAR_EMPRESTIMO, EmprestimoController.atualizar);
 router.put(SERVER_ROUTES.REMOVER_EMPRESTIMO, EmprestimoController.remover);
+
+// Cadastro de Usuário com Upload de Imagem de Perfil
+router.post(SERVER_ROUTES.NOVO_USUARIO, upload.single('imagemPerfil'), UsuarioController.cadastrar);
 
 export { router }
